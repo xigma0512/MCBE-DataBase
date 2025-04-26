@@ -8,7 +8,7 @@ class DatabaseTest {
 
 function setup(builders: GameTest.RegistrationBuilder[]) {
     for (const builder of builders) {
-        builder.structureName('xigmadb:gametest').tag('test');
+        builder.structureName('db:gametest').tag('test');
     }
 }
 

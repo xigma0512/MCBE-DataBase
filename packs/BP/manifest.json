@@ -1,7 +1,7 @@
 {
     "format_version": 2,
     "header": {
-        "name": "XigmaDatabase - Test Pack",
+        "name": "Database - Test Pack",
         "description": "",
         "uuid": "b28fa732-035b-4a2b-adf2-3cb4dce53689",
         "version": [1,0,0],
