@@ -1,4 +1,4 @@
-import { world } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
 import { ValueType } from "./Database.d"
 
 class Database<T extends ValueType> {
@@ -53,6 +53,18 @@ export class DatabaseManager {
 
     private constructor() {
         this.#databases = new Map<string, Database<any>>();
+        this.#shutdownSave();
+    }
+
+    #shutdownSave() {
+        system.beforeEvents.shutdown.subscribe(() => this.saveAll());
+    }
+
+    saveAll() {
+        for (const [name, db] of this.#databases) {
+            db.saveData();
+            console.warn(`Saved Database ${name}.`);
+        }
     }
 
     getDatabase<T extends ValueType>(name: string) {
