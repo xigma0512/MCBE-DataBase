@@ -19,6 +19,8 @@ function deleteOldFiles(targetDest) {
 
 function copyFolder(src, dest) {
 
+    if (!fs.existsSync(src)) return;
+
     if (!fs.existsSync(dest)) {
         fs.mkdirSync(dest, { recursive: true });
     }
