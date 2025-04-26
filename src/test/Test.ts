@@ -65,6 +65,15 @@ setup(GameTest.register(TEST_CLASS_NAME, 'fetchData', (test: GameTest.Test) => {
     test.succeed();
 }));
 
-function setup(builder: GameTest.RegistrationBuilder) {
-    builder.structureName('db:gametest').tag('batch_test');
+
+setup(GameTest.register(TEST_CLASS_NAME, 'save_before_shutdown', (test: GameTest.Test) => {
+    // call 'setting_data' test and shutdown the world, then call this test
+    // 'setting_data' test will add ['foo':'bar'] into database 'foobar'
+    const db = DatabaseManager.instance.getDatabase<string>('foobar');
+    if (db.get('foo') !== 'bar') test.fail("data wasn't save before shutdown");
+    test.succeed();
+}), 'shutdown_test');
+
+function setup(builder: GameTest.RegistrationBuilder, tag: string = 'batch_test') {
+    builder.structureName('db:gametest').tag(tag);
 }
