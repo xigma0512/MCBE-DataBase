@@ -1,0 +1,31 @@
+{
+    "format_version": 2,
+    "header": {
+        "name": "XigmaDatabase",
+        "description": "",
+        "uuid": "b28fa732-035b-4a2b-adf2-3cb4dce53689",
+        "version": [1,0,0],
+        "min_engine_version": [1,21,70]
+    },
+    "modules": [
+        {
+            "type": "data",
+            "uuid": "bba03c23-af52-418f-b224-cf36aac5a833",
+            "version": [1,0,0]
+        },
+        {
+            "description": "",
+            "type": "script",
+            "language": "javascript",
+            "uuid": "947b5bb3-a392-4ecb-8796-2cf1a58b8863",
+            "version": [1,0,0],
+            "entry": "scripts/entry.js"
+        }
+    ],
+    "dependencies": [
+        {
+            "module_name": "@minecraft/server",
+            "version": "2.0.0-beta"
+        }
+    ]
+}
