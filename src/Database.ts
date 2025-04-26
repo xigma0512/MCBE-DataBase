@@ -1,7 +1,7 @@
 import { world } from "@minecraft/server";
 import { ValueType } from "./Database.d"
 
-export class Database<T extends ValueType> {
+class Database<T extends ValueType> {
 
     readonly name: string;
     
@@ -35,6 +35,26 @@ export class Database<T extends ValueType> {
 
     set(key: string, value: T) {
         this.#MEMORY.set(key, value);
+    }
+
+}
+
+export class DatabaseManager {
+
+    static #instance: DatabaseManager;
+    static get instance() { return (this.#instance || (this.#instance = new this)); }
+
+    readonly #databases: Map<string, Database<any>>;
+
+    private constructor() {
+        this.#databases = new Map<string, Database<any>>();
+    }
+
+    getDatabase<T extends ValueType>(name: string) {
+        if (!this.#databases.has(name)) {
+            this.#databases.set(name, new Database<T>(name));
+        }
+        return this.#databases.get(name)!;
     }
 
 }
