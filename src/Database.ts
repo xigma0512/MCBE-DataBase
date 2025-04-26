@@ -26,6 +26,11 @@ class Database<T extends ValueType> {
         for (const [k, v] of Object.entries(storableData)) this.#MEMORY.set(k, v);
     }
 
+    saveData() {
+        const storableData = Object.fromEntries(this.#MEMORY);
+        world.setDynamicProperty(this.#propertyName, JSON.stringify(storableData));
+    }
+
     get(key: string) {
         if (!this.#MEMORY.has(key)) {
             throw new Error(`Cannot found key '${key}' in Database '${this.name}'.`);
