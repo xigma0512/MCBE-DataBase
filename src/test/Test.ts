@@ -90,6 +90,31 @@ setup(GameTest.register(TEST_CLASS_NAME, 'save_before_shutdown', (test: GameTest
 }), 'shutdown_test');
 
 
+/** 
+ * i want to get the whole data list, or keys/values from the list
+ */
+setup(GameTest.register(TEST_CLASS_NAME, 'getAll_keys_values', (test: GameTest.Test) => {
+    TestUtils.clearAllProperties();
+    
+    TestUtils.setProperty('foobar', 'f1', 'b1');
+    TestUtils.setProperty('foobar', 'f2', 'b2');
+    TestUtils.setProperty('foobar', 'f3', 'b3');
+
+    const foobar = DatabaseManager.instance.getDatabase<string>('foobar');
+    
+    const all = foobar.getAll();
+    if (JSON.stringify(all) !== JSON.stringify({'f1': 'b1', 'f2': 'b2', 'f3': 'b3'})) test.fail('getAll() fail'); 
+    
+    const keys = foobar.keys();
+    if (JSON.stringify(keys) !== JSON.stringify(['f1', 'f2', 'f3'])) test.fail('keys() fail'); 
+    
+    const values = foobar.values();
+    if (JSON.stringify(values) !== JSON.stringify(['b1', 'b2', 'b3'])) test.fail('values() fail'); 
+
+    test.succeed();
+}));
+
+
 function setup(builder: GameTest.RegistrationBuilder, tag: string = 'batch_test') {
     builder.structureName('db:gametest').tag(tag);
 }
