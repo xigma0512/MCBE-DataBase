@@ -1,8 +1,18 @@
 import * as GameTest from "@minecraft/server-gametest";
+import { Database } from "../Database";
+
 
 class DatabaseTest {
 
-    static readonly TEST_CASES = [];
+    static readonly TEST_CASES = [
+        GameTest.register(this.name, 'setting_data', (test: GameTest.Test) => {
+            test.succeedIf(() => {
+                const db = new Database<string>('foobar');
+                db.set('foo', 'bar');
+                test.assert(db.get('foo') === 'bar', "db.get('foo') should equal to 'bar'.");
+            });
+        })
+    ];
 
 }
 
