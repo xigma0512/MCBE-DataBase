@@ -41,9 +41,10 @@ class Database<T extends ValueType> {
         return this.#MEMORY.get(key);
     }
 
-    set(key: string, value: T) {
-        this.#MEMORY.set(key, value);
-    }
+    getAll() { return Object.fromEntries(this.#MEMORY); }
+    keys() { return Array.from(this.#MEMORY.keys()); }
+    values() { return Array.from(this.#MEMORY.values()); }
+    set(key: string, value: T) { this.#MEMORY.set(key, value); }
 
 }
 
