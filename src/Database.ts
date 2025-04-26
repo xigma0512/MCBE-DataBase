@@ -59,7 +59,14 @@ export class DatabaseManager {
         if (!this.#databases.has(name)) {
             this.#databases.set(name, new Database<T>(name));
         }
-        return this.#databases.get(name)!;
+        return this.#databases.get(name)! as Database<T>;
+    }
+
+
+    /** TEST **/
+    removeAllInstance() {
+        this.#databases.clear();
+        return this.#databases;
     }
 
 }
