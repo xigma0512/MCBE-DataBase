@@ -12,7 +12,6 @@ class Database<T extends ValueType> {
         this.name = name;
         this.#propertyName = `database:db_${this.name}`;
         this.#MEMORY = new Map<string, T>();
-
         this.#fetch();
     }
 
@@ -22,13 +21,17 @@ class Database<T extends ValueType> {
             console.warn(`The DynamicProperty '${this.#propertyName}' is undefined. It is being set to default value '{}'.`);
         }
 
-        const storableData = JSON.parse(world.getDynamicProperty(this.#propertyName) as string) as Record<string, T>;
-        for (const [k, v] of Object.entries(storableData)) this.#MEMORY.set(k, v);
+        try {
+            const storableData = JSON.parse(world.getDynamicProperty(this.#propertyName) as string) as Record<string, T>;
+            for (const [k, v] of Object.entries(storableData)) this.#MEMORY.set(k, v);
+        } catch (err) { throw err; }
     }
 
-    saveData() {
-        const storableData = Object.fromEntries(this.#MEMORY);
-        world.setDynamicProperty(this.#propertyName, JSON.stringify(storableData));
+    save() {
+        try {
+            const storableData = Object.fromEntries(this.#MEMORY);
+            world.setDynamicProperty(this.#propertyName, JSON.stringify(storableData));
+        } catch (err) { throw err; }
     }
 
     get(key: string) {
@@ -53,16 +56,16 @@ export class DatabaseManager {
 
     private constructor() {
         this.#databases = new Map<string, Database<any>>();
-        this.#shutdownSave();
+        this.#addListener();
     }
 
-    #shutdownSave() {
-        system.beforeEvents.shutdown.subscribe(() => this.saveAll());
+    #addListener() {
+        system.beforeEvents.shutdown.subscribe(() => this.saveAllDatabase());
     }
 
-    saveAll() {
+    saveAllDatabase() {
         for (const [name, db] of this.#databases) {
-            db.saveData();
+            db.save();
             console.warn(`Saved Database ${name}.`);
         }
     }
@@ -71,7 +74,7 @@ export class DatabaseManager {
         if (!this.#databases.has(name)) {
             this.#databases.set(name, new Database<T>(name));
         }
-        return this.#databases.get(name)! as Database<T>;
+        return this.#databases.get(name) as Database<T>;
     }
 
 

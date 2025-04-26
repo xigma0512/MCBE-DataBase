@@ -3,7 +3,7 @@ import { ValueType } from "../Database.d";
 
 export class TestUtils {
     
-    static getRawData<T extends ValueType>(name: string) {
+    static getProperty<T extends ValueType>(name: string) {
         const dbName = `database:db_${name}`;
         try {
             return JSON.parse(world.getDynamicProperty(dbName) as string) as Record<string, T>;
@@ -12,14 +12,14 @@ export class TestUtils {
         }
     }
     
-    static setRawData(name: string, key: string, value: ValueType) {
-        const rawData = this.getRawData(name) ?? {};
+    static setProperty(name: string, key: string, value: ValueType) {
+        const rawData = this.getProperty(name) ?? {};
         const dbName = `database:db_${name}`;
         rawData[key] = value;
         world.setDynamicProperty(dbName, JSON.stringify(rawData));
     }
 
-    static clearAllData() {
+    static clearAllProperties() {
         world.clearDynamicProperties();
     }
 
