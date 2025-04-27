@@ -2,6 +2,7 @@ import * as GameTest from "@minecraft/server-gametest";
 
 import { DatabaseManager } from "../Database";
 import { TestUtils } from "./TestUtils";
+import { Vector3 } from "@minecraft/server";
 
 const TEST_CLASS_NAME = 'DatabaseTest';
 
@@ -147,6 +148,19 @@ setup(GameTest.register(TEST_CLASS_NAME, 'database_clearAll_and_delete', (test: 
     foobar.clear();
     if (foobar.keys().length > 0) test.fail("clear database 'foobar' fails");
 
+    test.succeed();
+}));
+
+/**
+ * test if database can store data with type of Vector3
+ */
+setup(GameTest.register(TEST_CLASS_NAME, 'can_save_vector3', (test: GameTest.Test) => {
+    TestUtils.clearAllProperties();
+    
+    TestUtils.setProperty('foobar2', 'f1', {x: 1, y: 1, z: 1});
+
+    const foobar = DatabaseManager.instance.getDatabase<Vector3>('foobar2');
+    if (JSON.stringify(foobar.get('f1')) !== JSON.stringify({x: 1, y: 1, z: 1})) test.fail('');
     test.succeed();
 }));
 
