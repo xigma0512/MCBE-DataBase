@@ -2,29 +2,38 @@ import { Player, system, world } from "@minecraft/server";
 import { SimulatedPlayer } from "@minecraft/server-gametest";
 
 import { ValueType } from "./Database.d"
+import { CACHE_RELEASE } from "./database_config";
+
+console.log = (message: string) => {
+    world.getPlayers({tags:['admin']}).forEach(p => p.sendMessage(`[MCBE-Database] ${message}`));
+}
+
+function access(target: any, _: string, __: PropertyDescriptor) {
+    target.lastUpdate = Date.now();
+}
 
 class Database<T extends ValueType> {
 
     readonly name: string;
-    
+    lastAccessed: number;
+
     readonly #MEMORY: Map<string, T>;
     readonly #propertyName: string;
 
     /** Create */
     constructor(name: string) {
         this.name = name;
+        
+        this.lastAccessed = Date.now();
         this.#propertyName = `database:db_${this.name}`;
         this.#MEMORY = new Map<string, T>();
+        
         this.#fetch();
     }
 
     /** Fetch data from dynamic property */
     #fetch() {
-        if (world.getDynamicProperty(this.#propertyName) === undefined) {
-            world.setDynamicProperty(this.#propertyName, '{}');
-            console.warn(`The DynamicProperty '${this.#propertyName}' is undefined. It is being set to default value '{}'.`);
-        }
-
+        if (world.getDynamicProperty(this.#propertyName) === undefined) world.setDynamicProperty(this.#propertyName, '{}');
         try {
             const storableData = JSON.parse(world.getDynamicProperty(this.#propertyName) as string) as Record<string, T>;
             for (const [k, v] of Object.entries(storableData)) this.#MEMORY.set(k, v);
@@ -36,23 +45,59 @@ class Database<T extends ValueType> {
         try {
             const storableData = Object.fromEntries(this.#MEMORY);
             world.setDynamicProperty(this.#propertyName, JSON.stringify(storableData));
-            console.warn(`Saved Database ${this.name}.`);
+            console.log(`Saved Database ${this.name}.`);
         } catch (err) { throw err; }
     }
 
     /** Read */
-    get(key: string) { return this.#MEMORY.get(key); }
-    getAll() { return Object.fromEntries(this.#MEMORY); }
-    keys() { return Array.from(this.#MEMORY.keys()); }
-    values() { return Array.from(this.#MEMORY.values()); }
-    size() { return this.#MEMORY.size; }
+    @access get(key: string) { return this.#MEMORY.get(key); }
+    @access getAll() { return Object.fromEntries(this.#MEMORY); }
+    @access keys() { return Array.from(this.#MEMORY.keys()); }
+    @access values() { return Array.from(this.#MEMORY.values()); }
+    @access size() { return this.#MEMORY.size; }
 
+    
     /** Update */
-    set(key: string, value: T) { this.#MEMORY.set(key, value); }
+    @access set(key: string, value: T) { this.#MEMORY.set(key, value); }
+
 
     /** Delete */
-    delete(key: string) { this.#MEMORY.delete(key); }
-    clear() { this.#MEMORY.clear(); }
+    @access delete(key: string) { this.#MEMORY.delete(key); }
+    @access clear() { this.#MEMORY.clear(); }
+
+
+    /** TEST */
+    getCache() {
+        return this.#MEMORY;
+    }
+}
+
+class CacheCleaner {
+
+    static enable(databases: Map<string, Database<any>>) {
+        new this(databases);
+    }
+
+    readonly cacheInstance: Map<string, Database<any>>;
+
+    private constructor(databases: Map<string, Database<any>>) {
+        this.cacheInstance = databases;
+        system.runInterval(this.#releaseCache.bind(this), CACHE_RELEASE.EXECUTION_INTERVAL * 20);
+    }
+
+    #releaseCache() {
+        const databases = Array.from(this.cacheInstance.entries());
+        if (databases.length === 0) return;
+        databases.filter(([, db]) => Date.now() - db.lastAccessed >= CACHE_RELEASE.EXECUTION_INTERVAL * 1000);
+
+        for (const info of databases) {    
+            const [name, instance] = info;
+            instance.save();
+            this.cacheInstance.delete(name);
+            console.log(`Release Database '${name}'.`);
+        }
+    }
+
 }
 
 export class DatabaseManager {
@@ -64,6 +109,7 @@ export class DatabaseManager {
 
     private constructor() {
         this.#databases = new Map<string, Database<any>>();
+        if (CACHE_RELEASE.ENABLE) CacheCleaner.enable(this.#databases);
         this.#addListener();
     }
 
@@ -97,6 +143,10 @@ export class DatabaseManager {
     /** TEST **/
     removeAllInstance() {
         this.#databases.clear();
+        return this.#databases;
+    }
+
+    getCache() {
         return this.#databases;
     }
 

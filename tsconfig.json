@@ -17,8 +17,7 @@
         "rootDir": "./src",
         "outDir": "packs/BP/scripts",
         "listFiles": false,
-        "stripInternal": true,
-        "noEmitHelpers": true
+        "stripInternal": true
     },
     "exclude": [
         "node_modules",
