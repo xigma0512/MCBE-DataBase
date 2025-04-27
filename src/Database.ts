@@ -40,14 +40,7 @@ class Database<T extends ValueType> {
     }
 
     /** Read */
-    get(key: string) {
-        try {
-            if (!this.#MEMORY.has(key)) {
-                throw new Error(`Cannot found key '${key}' in Database '${this.name}'.`);
-            }
-            return this.#MEMORY.get(key);
-        } catch { return undefined; }
-    }
+    get(key: string) { return this.#MEMORY.get(key); }
     getAll() { return Object.fromEntries(this.#MEMORY); }
     keys() { return Array.from(this.#MEMORY.keys()); }
     values() { return Array.from(this.#MEMORY.values()); }
