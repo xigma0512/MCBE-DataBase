@@ -1,4 +1,6 @@
-import { system, world } from "@minecraft/server";
+import { Player, system, world } from "@minecraft/server";
+import { SimulatedPlayer } from "@minecraft/server-gametest";
+
 import { ValueType } from "./Database.d"
 
 class Database<T extends ValueType> {
@@ -39,19 +41,24 @@ class Database<T extends ValueType> {
 
     /** Read */
     get(key: string) {
-        if (!this.#MEMORY.has(key)) {
-            throw new Error(`Cannot found key '${key}' in Database '${this.name}'.`);
-        }
-        return this.#MEMORY.get(key);
+        try {
+            if (!this.#MEMORY.has(key)) {
+                throw new Error(`Cannot found key '${key}' in Database '${this.name}'.`);
+            }
+            return this.#MEMORY.get(key);
+        } catch { return undefined; }
     }
     getAll() { return Object.fromEntries(this.#MEMORY); }
     keys() { return Array.from(this.#MEMORY.keys()); }
     values() { return Array.from(this.#MEMORY.values()); }
+    size() { return this.#MEMORY.size; }
 
     /** Update */
     set(key: string, value: T) { this.#MEMORY.set(key, value); }
 
     /** Delete */
+    delete(key: string) { this.#MEMORY.delete(key); }
+    clear() { this.#MEMORY.clear(); }
 }
 
 export class DatabaseManager {
@@ -82,6 +89,17 @@ export class DatabaseManager {
             this.#databases.set(name, new Database<T>(name));
         }
         return this.#databases.get(name) as Database<T>;
+    }
+
+    printElements(databaseName: string, player: Player) {
+        const db = this.getDatabase(databaseName);
+        player.sendMessage(`[Database]: ${databaseName} (size: ${db.size()})`);
+        if (player instanceof SimulatedPlayer) player.chat(`[Database]: ${databaseName} (size: ${db.size()})`); // TEST CODE
+        for (const data in db.getAll()) {
+            const [key, value] = data;
+            player.sendMessage(`- [${key}: ${value}]`);
+            if (player instanceof SimulatedPlayer) player.chat(`- [${key}: ${value}]`); // TEST CODE
+        }
     }
 
 
