@@ -1,5 +1,4 @@
 import { Player, system, world } from "@minecraft/server";
-import { SimulatedPlayer } from "@minecraft/server-gametest";
 
 import { ValueType } from "./Database.d"
 import { CACHE_RELEASE } from "./database_config";
@@ -64,12 +63,6 @@ class Database<T extends ValueType> {
     /** Delete */
     @access delete(key: string) { this.#MEMORY.delete(key); }
     @access clear() { this.#MEMORY.clear(); }
-
-
-    /** TEST */
-    getCache() {
-        return this.#MEMORY;
-    }
 }
 
 class CacheCleaner {
@@ -131,23 +124,10 @@ export class DatabaseManager {
     printElements(databaseName: string, player: Player) {
         const db = this.getDatabase(databaseName);
         player.sendMessage(`[Database]: ${databaseName} (size: ${db.size()})`);
-        if (player instanceof SimulatedPlayer) player.chat(`[Database]: ${databaseName} (size: ${db.size()})`); // TEST CODE
         for (const data in db.getAll()) {
             const [key, value] = data;
             player.sendMessage(`- [${key}: ${value}]`);
-            if (player instanceof SimulatedPlayer) player.chat(`- [${key}: ${value}]`); // TEST CODE
         }
-    }
-
-
-    /** TEST **/
-    removeAllInstance() {
-        this.#databases.clear();
-        return this.#databases;
-    }
-
-    getCache() {
-        return this.#databases;
     }
 
 }
