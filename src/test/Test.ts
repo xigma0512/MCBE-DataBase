@@ -115,6 +115,41 @@ setup(GameTest.register(TEST_CLASS_NAME, 'getAll_keys_values', (test: GameTest.T
 }));
 
 
+/** 
+ * i want to print all element in the database
+ */
+setup(GameTest.register(TEST_CLASS_NAME, 'database_print_all_elements', (test: GameTest.Test) => {
+    TestUtils.clearAllProperties();
+
+    TestUtils.setProperty('foobar', 'f1', 'b1');
+    TestUtils.setProperty('foobar', 'f2', 'b2');
+    TestUtils.setProperty('foobar', 'f3', 'b3');
+
+    const player = test.spawnSimulatedPlayer(test.worldLocation({x:0, y: 0, z: 0}));
+    DatabaseManager.instance.printElements('foobar', player);
+    test.succeed();
+}));
+
+/** 
+ * i want to delete elements or clear all element in database
+ */
+setup(GameTest.register(TEST_CLASS_NAME, 'database_clearAll_and_delete', (test: GameTest.Test) => {
+    TestUtils.clearAllProperties();
+
+    TestUtils.setProperty('foobar', 'f1', 'b1');
+    TestUtils.setProperty('foobar', 'f2', 'b2');
+    TestUtils.setProperty('foobar', 'f3', 'b3');
+
+    const foobar = DatabaseManager.instance.getDatabase('foobar');
+    foobar.delete('f2');
+    if (foobar.get('f2') !== undefined) test.fail("delete foobar['f2'] fails");
+
+    foobar.clear();
+    if (foobar.keys().length > 0) test.fail("clear database 'foobar' fails");
+
+    test.succeed();
+}));
+
 function setup(builder: GameTest.RegistrationBuilder, tag: string = 'batch_test') {
     builder.structureName('db:gametest').tag(tag);
 }
