@@ -36,6 +36,7 @@ class Database<T extends ValueType> {
         try {
             const storableData = Object.fromEntries(this.#MEMORY);
             world.setDynamicProperty(this.#propertyName, JSON.stringify(storableData));
+            console.warn(`Saved Database ${this.name}.`);
         } catch (err) { throw err; }
     }
 
@@ -71,10 +72,7 @@ export class DatabaseManager {
     }
 
     saveAllDatabase() {
-        for (const [name, db] of this.#databases) {
-            db.save();
-            console.warn(`Saved Database ${name}.`);
-        }
+        this.#databases.forEach(db => db.save());
     }
 
     getDatabase<T extends ValueType>(name: string) {
