@@ -8,6 +8,7 @@ class Database<T extends ValueType> {
     readonly #MEMORY: Map<string, T>;
     readonly #propertyName: string;
 
+    /** Create */
     constructor(name: string) {
         this.name = name;
         this.#propertyName = `database:db_${this.name}`;
@@ -15,6 +16,7 @@ class Database<T extends ValueType> {
         this.#fetch();
     }
 
+    /** Fetch data from dynamic property */
     #fetch() {
         if (world.getDynamicProperty(this.#propertyName) === undefined) {
             world.setDynamicProperty(this.#propertyName, '{}');
@@ -27,6 +29,7 @@ class Database<T extends ValueType> {
         } catch (err) { throw err; }
     }
 
+    /** Upload(save) data to dynamic property */
     save() {
         try {
             const storableData = Object.fromEntries(this.#MEMORY);
@@ -34,18 +37,21 @@ class Database<T extends ValueType> {
         } catch (err) { throw err; }
     }
 
+    /** Read */
     get(key: string) {
         if (!this.#MEMORY.has(key)) {
             throw new Error(`Cannot found key '${key}' in Database '${this.name}'.`);
         }
         return this.#MEMORY.get(key);
     }
-
     getAll() { return Object.fromEntries(this.#MEMORY); }
     keys() { return Array.from(this.#MEMORY.keys()); }
     values() { return Array.from(this.#MEMORY.values()); }
+
+    /** Update */
     set(key: string, value: T) { this.#MEMORY.set(key, value); }
 
+    /** Delete */
 }
 
 export class DatabaseManager {
