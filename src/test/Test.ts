@@ -164,6 +164,49 @@ setup(GameTest.register(TEST_CLASS_NAME, 'can_save_vector3', (test: GameTest.Tes
     test.succeed();
 }));
 
+/**
+ * test if database cache can be clean in interval
+ */
+setup(GameTest.register(TEST_CLASS_NAME, 'cache_cleaner', (test: GameTest.Test) => {
+    TestUtils.clearAllProperties();
+    DatabaseManager.instance.removeAllInstance();
+
+    const oldDbName = 'old';
+    const recentDbName = 'recent';
+    const oldData = { 'key1': 'value1', 'key2': 'value2' };
+    const recentData = { 'keyA': 'valueA', 'keyB': 'valueB' };
+
+    const oldDb = DatabaseManager.instance.getDatabase<any>(oldDbName);
+    oldDb.set('key1', 'value1');
+    oldDb.set('key2', 'value2');
+
+    const recentDb = DatabaseManager.instance.getDatabase<any>(recentDbName);
+    recentDb.set('keyA', 'valueA');
+
+    test.startSequence()
+        .thenIdle(100)
+        .thenExecute(() => {
+            const recentDbAfterWait = DatabaseManager.instance.getDatabase<string>(recentDbName);
+            if (recentDbAfterWait.get('keyA') === undefined) test.fail(`database old['keyA'] is undefined.`); 
+            recentDbAfterWait.set('keyB', 'valueB');
+        })
+        .thenExecute(() => {
+            const cache = DatabaseManager.instance.getCache();
+            test.assert(!cache.has(oldDbName), `Database '${oldDbName}' should be removed.`);
+            test.assert(cache.has(recentDbName), `Database '${recentDbName}' should remain.`);
+
+            const savedOldData = TestUtils.getProperty(oldDbName);
+            test.assert(savedOldData !== undefined, `Property for '${oldDbName}' should exist.`);
+            test.assert(JSON.stringify(savedOldData) === JSON.stringify(oldData), `Data for '${oldDbName}' not saved correctly.`);
+            
+            const recentDbFromCache = cache.get(recentDbName);
+            test.assert(recentDbFromCache !== undefined, `Recent db instance must be in cache.`);
+            test.assert(JSON.stringify(Object.fromEntries(recentDbFromCache!.getCache())) === JSON.stringify(recentData), `Data in recent db cache is wrong.`);
+            
+            test.succeed();
+        });
+}));
+
 function setup(builder: GameTest.RegistrationBuilder, tag: string = 'batch_test') {
-    builder.structureName('db:gametest').tag(tag);
+    builder.structureName('db:gametest').tag(tag).maxTicks(200);
 }
