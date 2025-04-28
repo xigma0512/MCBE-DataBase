@@ -1,10 +1,10 @@
-import { Player, system, world } from "@minecraft/server";
-
-import { ValueType } from "./Database.d"
+import { Player, system, world, Vector3 } from "@minecraft/server";
 import { CACHE_RELEASE } from "./database_config";
 
-console.log = (message: string) => {
-    world.getPlayers({tags:['admin']}).forEach(p => p.sendMessage(`[MCBE-Database] ${message}`));
+export type ValueType = boolean | number | string | Vector3 | undefined;
+
+console.log = (msg: string) => {
+    world.getPlayers({tags:['admin']}).forEach(p => p.sendMessage(`[MCBE-Database] ${msg}`));
 }
 
 function access(target: any, _: string, __: PropertyDescriptor) {
@@ -19,7 +19,6 @@ class Database<T extends ValueType> {
     readonly #MEMORY: Map<string, T>;
     readonly #propertyName: string;
 
-    /** Create */
     constructor(name: string) {
         this.name = name;
         
@@ -30,7 +29,6 @@ class Database<T extends ValueType> {
         this.#fetch();
     }
 
-    /** Fetch data from dynamic property */
     #fetch() {
         if (world.getDynamicProperty(this.#propertyName) === undefined) world.setDynamicProperty(this.#propertyName, '{}');
         try {
@@ -39,7 +37,6 @@ class Database<T extends ValueType> {
         } catch (err) { throw err; }
     }
 
-    /** Upload(save) data to dynamic property */
     save() {
         try {
             const storableData = Object.fromEntries(this.#MEMORY);
@@ -48,22 +45,18 @@ class Database<T extends ValueType> {
         } catch (err) { throw err; }
     }
 
-    /** Read */
     @access get(key: string) { return this.#MEMORY.get(key); }
     @access getAll() { return Object.fromEntries(this.#MEMORY); }
     @access keys() { return Array.from(this.#MEMORY.keys()); }
     @access values() { return Array.from(this.#MEMORY.values()); }
     @access size() { return this.#MEMORY.size; }
 
-    
-    /** Update */
     @access set(key: string, value: T) { this.#MEMORY.set(key, value); }
-
-
-    /** Delete */
     @access delete(key: string) { this.#MEMORY.delete(key); }
+
     @access clear() { this.#MEMORY.clear(); }
 }
+
 
 class CacheCleaner {
 
@@ -95,8 +88,8 @@ class CacheCleaner {
 
 export class DatabaseManager {
 
-    static #instance: DatabaseManager;
     static get instance() { return (this.#instance || (this.#instance = new this)); }
+    static #instance: DatabaseManager;
 
     readonly #databases: Map<string, Database<any>>;
 
