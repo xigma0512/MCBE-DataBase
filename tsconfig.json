@@ -1,11 +1,11 @@
 {
     "compilerOptions": {
-        "target": "ES2022",
-        "moduleResolution": "node",
+        "target":"ES2022",
+        "moduleResolution":"Node",
+        "module": "ES2020",
         "noLib": false,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "sourceMap": false,
         "pretty": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
