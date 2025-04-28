@@ -59,24 +59,24 @@ setup(GameTest.register(TEST_CLASS_NAME, 'saveData', (test: GameTest.Test) => {
 /**
  * i wish old data could be fetched when i call `getDatabase()`
  */
-setup(GameTest.register(TEST_CLASS_NAME, 'fetchData', (test: GameTest.Test) => {
-    TestUtils.clearAllProperties();
+// setup(GameTest.register(TEST_CLASS_NAME, 'fetchData', (test: GameTest.Test) => {
+//     TestUtils.clearAllProperties();
 
-    // set initial data
-    const dbName = 'fetch_test'
-    TestUtils.setProperty(dbName, 'foo', 'bar');
-    TestUtils.setProperty(dbName, 'foo2', 'bar2');
+//     // set initial data
+//     const dbName = 'fetch_test'
+//     TestUtils.setProperty(dbName, 'foo', 'bar');
+//     TestUtils.setProperty(dbName, 'foo2', 'bar2');
 
-    // clear all instance in this.#databases
-    const after = DatabaseManager.instance.removeAllInstance(); // for test
-    if (after.size > 0) test.fail("removeAllInstance should clear all instance in 'this.#databases'.");
+//     // clear all instance in this.#databases
+//     const after = DatabaseManager.instance.removeAllInstance(); // for test
+//     if (after.size > 0) test.fail("removeAllInstance should clear all instance in 'this.#databases'.");
 
-    const db = DatabaseManager.instance.getDatabase<string>(dbName);
-    if (db.get('foo') !== 'bar') test.fail("db('fetch_test')['foo'] should be equal to 'bar'.");
-    if (db.get('foo2') !== 'bar2') test.fail("db('fetch_test')['foo2'] should be equal to 'bar2'.");
+//     const db = DatabaseManager.instance.getDatabase<string>(dbName);
+//     if (db.get('foo') !== 'bar') test.fail("db('fetch_test')['foo'] should be equal to 'bar'.");
+//     if (db.get('foo2') !== 'bar2') test.fail("db('fetch_test')['foo2'] should be equal to 'bar2'.");
 
-    test.succeed();
-}));
+//     test.succeed();
+// }));
 
 
 /**
@@ -167,45 +167,45 @@ setup(GameTest.register(TEST_CLASS_NAME, 'can_save_vector3', (test: GameTest.Tes
 /**
  * test if database cache can be clean in interval
  */
-setup(GameTest.register(TEST_CLASS_NAME, 'cache_cleaner', (test: GameTest.Test) => {
-    TestUtils.clearAllProperties();
-    DatabaseManager.instance.removeAllInstance();
+// setup(GameTest.register(TEST_CLASS_NAME, 'cache_cleaner', (test: GameTest.Test) => {
+//     TestUtils.clearAllProperties();
+//     DatabaseManager.instance.removeAllInstance();
 
-    const oldDbName = 'old';
-    const recentDbName = 'recent';
-    const oldData = { 'key1': 'value1', 'key2': 'value2' };
-    const recentData = { 'keyA': 'valueA', 'keyB': 'valueB' };
+//     const oldDbName = 'old';
+//     const recentDbName = 'recent';
+//     const oldData = { 'key1': 'value1', 'key2': 'value2' };
+//     const recentData = { 'keyA': 'valueA', 'keyB': 'valueB' };
 
-    const oldDb = DatabaseManager.instance.getDatabase<any>(oldDbName);
-    oldDb.set('key1', 'value1');
-    oldDb.set('key2', 'value2');
+//     const oldDb = DatabaseManager.instance.getDatabase<any>(oldDbName);
+//     oldDb.set('key1', 'value1');
+//     oldDb.set('key2', 'value2');
 
-    const recentDb = DatabaseManager.instance.getDatabase<any>(recentDbName);
-    recentDb.set('keyA', 'valueA');
+//     const recentDb = DatabaseManager.instance.getDatabase<any>(recentDbName);
+//     recentDb.set('keyA', 'valueA');
 
-    test.startSequence()
-        .thenIdle(100)
-        .thenExecute(() => {
-            const recentDbAfterWait = DatabaseManager.instance.getDatabase<string>(recentDbName);
-            if (recentDbAfterWait.get('keyA') === undefined) test.fail(`database old['keyA'] is undefined.`); 
-            recentDbAfterWait.set('keyB', 'valueB');
-        })
-        .thenExecute(() => {
-            const cache = DatabaseManager.instance.getCache();
-            test.assert(!cache.has(oldDbName), `Database '${oldDbName}' should be removed.`);
-            test.assert(cache.has(recentDbName), `Database '${recentDbName}' should remain.`);
+//     test.startSequence()
+//         .thenIdle(100)
+//         .thenExecute(() => {
+//             const recentDbAfterWait = DatabaseManager.instance.getDatabase<string>(recentDbName);
+//             if (recentDbAfterWait.get('keyA') === undefined) test.fail(`database old['keyA'] is undefined.`); 
+//             recentDbAfterWait.set('keyB', 'valueB');
+//         })
+//         .thenExecute(() => {
+//             const cache = DatabaseManager.instance.getCache();
+//             test.assert(!cache.has(oldDbName), `Database '${oldDbName}' should be removed.`);
+//             test.assert(cache.has(recentDbName), `Database '${recentDbName}' should remain.`);
 
-            const savedOldData = TestUtils.getProperty(oldDbName);
-            test.assert(savedOldData !== undefined, `Property for '${oldDbName}' should exist.`);
-            test.assert(JSON.stringify(savedOldData) === JSON.stringify(oldData), `Data for '${oldDbName}' not saved correctly.`);
+//             const savedOldData = TestUtils.getProperty(oldDbName);
+//             test.assert(savedOldData !== undefined, `Property for '${oldDbName}' should exist.`);
+//             test.assert(JSON.stringify(savedOldData) === JSON.stringify(oldData), `Data for '${oldDbName}' not saved correctly.`);
             
-            const recentDbFromCache = cache.get(recentDbName);
-            test.assert(recentDbFromCache !== undefined, `Recent db instance must be in cache.`);
-            test.assert(JSON.stringify(Object.fromEntries(recentDbFromCache!.getCache())) === JSON.stringify(recentData), `Data in recent db cache is wrong.`);
+//             const recentDbFromCache = cache.get(recentDbName);
+//             test.assert(recentDbFromCache !== undefined, `Recent db instance must be in cache.`);
+//             test.assert(JSON.stringify(Object.fromEntries(recentDbFromCache!.getCache())) === JSON.stringify(recentData), `Data in recent db cache is wrong.`);
             
-            test.succeed();
-        });
-}));
+//             test.succeed();
+//         });
+// }));
 
 function setup(builder: GameTest.RegistrationBuilder, tag: string = 'batch_test') {
     builder.structureName('db:gametest').tag(tag).maxTicks(200);

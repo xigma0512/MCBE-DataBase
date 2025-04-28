@@ -1,5 +1,5 @@
 import { world } from "@minecraft/server";
-import { ValueType } from "../Database.d";
+import { ValueType } from "../Database";
 
 export class TestUtils {
     
