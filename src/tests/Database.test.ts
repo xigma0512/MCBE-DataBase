@@ -13,7 +13,7 @@ setup(GameTest.register(TEST_CLASS_NAME, 'setting_data', (test: GameTest.Test) =
     TestUtils.clearAllProperties();
 
     test.succeedIf(() => {
-        const db = DatabaseManager.instance.getDatabase<string>('foobar');
+        const db = DatabaseManager.instance.getDatabase<string>('foobar_1');
         db.set('foo', 'bar');
         test.assert(db.get('foo') === 'bar', "db.get('foo') should equal to 'bar'.");
     });
@@ -27,8 +27,8 @@ setup(GameTest.register(TEST_CLASS_NAME, 'data_consistency', (test: GameTest.Tes
     TestUtils.clearAllProperties();
 
     test.succeedIf(() => {
-        const inst = DatabaseManager.instance.getDatabase<string>('foobar2');
-        const other_inst = DatabaseManager.instance.getDatabase<string>('foobar2');
+        const inst = DatabaseManager.instance.getDatabase<string>('foobar_2');
+        const other_inst = DatabaseManager.instance.getDatabase<string>('foobar_2');
         inst.set('foo', 'bar2');
         test.assert(other_inst.get('foo') === inst.get('foo'), 'the value of key "foo" should be the same');
     });
@@ -42,7 +42,7 @@ setup(GameTest.register(TEST_CLASS_NAME, 'saveData', (test: GameTest.Test) => {
     TestUtils.clearAllProperties();
 
     test.succeedIf(() => {
-        const dbName = 'saveData_test';
+        const dbName = 'foobar_3';
         const db = DatabaseManager.instance.getDatabase<string>(dbName);
         db.set('k', 'v');
         db.set('foo', 'bar');
@@ -84,8 +84,8 @@ setup(GameTest.register(TEST_CLASS_NAME, 'saveData', (test: GameTest.Test) => {
  */
 setup(GameTest.register(TEST_CLASS_NAME, 'save_before_shutdown', (test: GameTest.Test) => {
     // call 'setting_data' test and shutdown the world, then call this test
-    // 'setting_data' test will add ['foo':'bar'] into database 'foobar'
-    const db = DatabaseManager.instance.getDatabase<string>('foobar');
+    // 'setting_data' test will add ['foo':'bar'] into database 'foobar_1'
+    const db = DatabaseManager.instance.getDatabase<string>('foobar_1');
     if (db.get('foo') !== 'bar') test.fail("data wasn't save before shutdown");
     test.succeed();
 }), 'shutdown_test');
@@ -97,14 +97,14 @@ setup(GameTest.register(TEST_CLASS_NAME, 'save_before_shutdown', (test: GameTest
 setup(GameTest.register(TEST_CLASS_NAME, 'getAll_keys_values', (test: GameTest.Test) => {
     TestUtils.clearAllProperties();
     
-    TestUtils.setProperty('foobar', 'f1', 'b1');
-    TestUtils.setProperty('foobar', 'f2', 'b2');
-    TestUtils.setProperty('foobar', 'f3', 'b3');
+    TestUtils.setProperty('foobar_5', 'f1', 'b1');
+    TestUtils.setProperty('foobar_5', 'f2', 'b2');
+    TestUtils.setProperty('foobar_5', 'f3', 'b3');
 
-    const foobar = DatabaseManager.instance.getDatabase<string>('foobar');
+    const foobar = DatabaseManager.instance.getDatabase<string>('foobar_5');
     
     const all = foobar.getAll();
-    if (JSON.stringify(all) !== JSON.stringify({'f1': 'b1', 'f2': 'b2', 'f3': 'b3'})) test.fail('getAll() fail'); 
+    if (JSON.stringify(all) !== JSON.stringify({'f1': 'b1', 'f2': 'b2', 'f3': 'b3'})) test.fail(`getAll() fail`); 
     
     const keys = foobar.keys();
     if (JSON.stringify(keys) !== JSON.stringify(['f1', 'f2', 'f3'])) test.fail('keys() fail'); 
@@ -122,12 +122,12 @@ setup(GameTest.register(TEST_CLASS_NAME, 'getAll_keys_values', (test: GameTest.T
 setup(GameTest.register(TEST_CLASS_NAME, 'database_print_all_elements', (test: GameTest.Test) => {
     TestUtils.clearAllProperties();
 
-    TestUtils.setProperty('foobar', 'f1', 'b1');
-    TestUtils.setProperty('foobar', 'f2', 'b2');
-    TestUtils.setProperty('foobar', 'f3', 'b3');
+    TestUtils.setProperty('foobar_6', 'f1', 'b1');
+    TestUtils.setProperty('foobar_6', 'f2', 'b2');
+    TestUtils.setProperty('foobar_6', 'f3', 'b3');
 
     const player = test.spawnSimulatedPlayer(test.worldLocation({x:0, y: 0, z: 0}));
-    DatabaseManager.instance.printElements('foobar', player);
+    DatabaseManager.instance.printElements('foobar_6', player);
     test.succeed();
 }));
 
@@ -137,16 +137,16 @@ setup(GameTest.register(TEST_CLASS_NAME, 'database_print_all_elements', (test: G
 setup(GameTest.register(TEST_CLASS_NAME, 'database_clearAll_and_delete', (test: GameTest.Test) => {
     TestUtils.clearAllProperties();
 
-    TestUtils.setProperty('foobar', 'f1', 'b1');
-    TestUtils.setProperty('foobar', 'f2', 'b2');
-    TestUtils.setProperty('foobar', 'f3', 'b3');
+    TestUtils.setProperty('foobar_7', 'f1', 'b1');
+    TestUtils.setProperty('foobar_7', 'f2', 'b2');
+    TestUtils.setProperty('foobar_7', 'f3', 'b3');
 
-    const foobar = DatabaseManager.instance.getDatabase('foobar');
+    const foobar = DatabaseManager.instance.getDatabase('foobar_7');
     foobar.delete('f2');
-    if (foobar.get('f2') !== undefined) test.fail("delete foobar['f2'] fails");
+    if (foobar.get('f2') !== undefined) test.fail("delete foobar_7['f2'] fails");
 
     foobar.clear();
-    if (foobar.keys().length > 0) test.fail("clear database 'foobar' fails");
+    if (foobar.keys().length > 0) test.fail("clear database 'foobar_7' fails");
 
     test.succeed();
 }));
@@ -157,10 +157,10 @@ setup(GameTest.register(TEST_CLASS_NAME, 'database_clearAll_and_delete', (test: 
 setup(GameTest.register(TEST_CLASS_NAME, 'can_save_vector3', (test: GameTest.Test) => {
     TestUtils.clearAllProperties();
     
-    TestUtils.setProperty('foobar2', 'f1', {x: 1, y: 1, z: 1});
+    TestUtils.setProperty('foobar_8', 'f1', {x: 1, y: 1, z: 1});
 
-    const foobar = DatabaseManager.instance.getDatabase<Vector3>('foobar2');
-    if (JSON.stringify(foobar.get('f1')) !== JSON.stringify({x: 1, y: 1, z: 1})) test.fail('');
+    const foobar = DatabaseManager.instance.getDatabase<Vector3>('foobar_8');
+    if (JSON.stringify(foobar.get('f1')) !== JSON.stringify({x: 1, y: 1, z: 1})) test.fail(``);
     test.succeed();
 }));
 
