@@ -14,10 +14,12 @@ A simple Key-Value database system for Minecraft Bedrock Edition Script API that
 ## ⚡Usage
 
 ### Create a new database
+> [!IMPORTANT]  
+> After version v1.0.1, you can now store object (JSON) type values in the database, but data like Class instances or Map may not be stored successfully.
 ```typescript
 import { DatabaseManager } from "./Database.ts"
 
-/* 'T' can be any, number, boolean, string, Vector3 or undefined */
+/* 'T' can be any, number, boolean, string, Vector3, undefined or Object(e,g., Record) */
 const database = DatabaseManager.instance.getDatabase<T>("my-database");
 ```
 
