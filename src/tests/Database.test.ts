@@ -59,24 +59,25 @@ setup(GameTest.register(TEST_CLASS_NAME, 'saveData', (test: GameTest.Test) => {
 /**
  * i wish old data could be fetched when i call `getDatabase()`
  */
-// setup(GameTest.register(TEST_CLASS_NAME, 'fetchData', (test: GameTest.Test) => {
-//     TestUtils.clearAllProperties();
+setup(GameTest.register(TEST_CLASS_NAME, 'fetchData', (test: GameTest.Test) => {
+    TestUtils.clearAllProperties();
 
-//     // set initial data
-//     const dbName = 'fetch_test'
-//     TestUtils.setProperty(dbName, 'foo', 'bar');
-//     TestUtils.setProperty(dbName, 'foo2', 'bar2');
+    // set initial data
+    const dbName = 'fetch_test'
+    TestUtils.setProperty(dbName, 'foo', 'bar');
+    TestUtils.setProperty(dbName, 'foo2', 'bar2');
 
-//     // clear all instance in this.#databases
-//     const after = DatabaseManager.instance.removeAllInstance(); // for test
-//     if (after.size > 0) test.fail("removeAllInstance should clear all instance in 'this.#databases'.");
+    // clear all instance in this.#databases
+    const inst = DatabaseManager.instance.access_databases_instance(); // for test
+    inst.clear();
+    if (inst.size > 0) test.fail("removeAllInstance should clear all instance in 'this.#databases'.");
 
-//     const db = DatabaseManager.instance.getDatabase<string>(dbName);
-//     if (db.get('foo') !== 'bar') test.fail("db('fetch_test')['foo'] should be equal to 'bar'.");
-//     if (db.get('foo2') !== 'bar2') test.fail("db('fetch_test')['foo2'] should be equal to 'bar2'.");
+    const db = DatabaseManager.instance.getDatabase<string>(dbName);
+    if (db.get('foo') !== 'bar') test.fail("db('fetch_test')['foo'] should be equal to 'bar'.");
+    if (db.get('foo2') !== 'bar2') test.fail("db('fetch_test')['foo2'] should be equal to 'bar2'.");
 
-//     test.succeed();
-// }));
+    test.succeed();
+}));
 
 
 /**
@@ -169,7 +170,7 @@ setup(GameTest.register(TEST_CLASS_NAME, 'can_save_vector3', (test: GameTest.Tes
  */
 // setup(GameTest.register(TEST_CLASS_NAME, 'cache_cleaner', (test: GameTest.Test) => {
 //     TestUtils.clearAllProperties();
-//     DatabaseManager.instance.removeAllInstance();
+//     DatabaseManager.instance.access_databases_instance().clear();;
 
 //     const oldDbName = 'old';
 //     const recentDbName = 'recent';
@@ -191,7 +192,7 @@ setup(GameTest.register(TEST_CLASS_NAME, 'can_save_vector3', (test: GameTest.Tes
 //             recentDbAfterWait.set('keyB', 'valueB');
 //         })
 //         .thenExecute(() => {
-//             const cache = DatabaseManager.instance.getCache();
+//             const cache = DatabaseManager.instance.access_databases_instance();
 //             test.assert(!cache.has(oldDbName), `Database '${oldDbName}' should be removed.`);
 //             test.assert(cache.has(recentDbName), `Database '${recentDbName}' should remain.`);
 
@@ -201,11 +202,40 @@ setup(GameTest.register(TEST_CLASS_NAME, 'can_save_vector3', (test: GameTest.Tes
             
 //             const recentDbFromCache = cache.get(recentDbName);
 //             test.assert(recentDbFromCache !== undefined, `Recent db instance must be in cache.`);
-//             test.assert(JSON.stringify(Object.fromEntries(recentDbFromCache!.getCache())) === JSON.stringify(recentData), `Data in recent db cache is wrong.`);
+//             test.assert(JSON.stringify(Object.fromEntries(recentDbFromCache())) === JSON.stringify(recentData), `Data in recent db cache is wrong.`);
             
 //             test.succeed();
 //         });
 // }));
+
+/**
+ * test if database can store data with type of Vector3
+ */
+setup(GameTest.register(TEST_CLASS_NAME, 'can_save_object', (test: GameTest.Test) => {
+    type userinfo = {
+        name: string,
+        phone: number
+    };
+    const userinfoTable: Record<string, userinfo> = {
+        'steve': {name: 'steve', phone: 55688},
+        'alex': {name: 'alex', phone: 88655}
+    };
+    const database = DatabaseManager.instance.getDatabase<userinfo>('obj_test');
+    for (const [username, phone] of Object.entries(userinfoTable)) {
+        database.set(username, phone);
+    }
+
+    database.save();
+    DatabaseManager.instance.access_databases_instance().clear(); // TEST FUNCTION
+
+    const newInstance = DatabaseManager.instance.getDatabase<userinfo>('obj_test');
+    const steve_info = newInstance.get('steve');
+    if (steve_info === undefined) test.fail('where is steve??');
+    if (steve_info!.name !== 'steve') test.fail('steve name false');
+    if (steve_info!.phone !== 55688) test.fail('steve phone false');
+
+    test.succeed();
+}));
 
 function setup(builder: GameTest.RegistrationBuilder, tag: string = 'batch_test') {
     builder.structureName('db:gametest').tag(tag).maxTicks(200);

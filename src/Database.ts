@@ -1,7 +1,7 @@
 import { Player, system, world, Vector3 } from "@minecraft/server";
 import { CACHE_RELEASE } from "./database_config";
 
-export type ValueType = boolean | number | string | Vector3 | undefined;
+export type ValueType = boolean | number | string | Vector3 | undefined | Object;
 
 console.log = (msg: string) => {
     world.getPlayers({tags:['admin']}).forEach(p => p.sendMessage(`[MCBE-Database] ${msg}`));
