@@ -3,13 +3,13 @@ import { Player, Vector3 } from "@minecraft/server";
 /**
  * Defines the types of values that can be stored in the database.
  */
-declare type ValueType = boolean | number | string | Vector3 | undefined;
+declare type ValueType = boolean | number | string | Vector3 | undefined | Object;
 
 /**
  * A simple key-value database stored in dynamic properties.
  * @template T The type of values stored in the database.
  */
-declare class Database<T extends ValueType> {
+export declare class Database<T extends ValueType> {
 
     /**
      * The unique name of the database.
@@ -89,7 +89,7 @@ declare class Database<T extends ValueType> {
  * Manages instances of Database classes, ensuring singletons per database name.
  * This class is implemented as a singleton, accessed via `DatabaseManager.instance`.
  */
-declare class DatabaseManager {
+export declare class DatabaseManager {
     /**
      * Provides the singleton instance of the DatabaseManager.
      */

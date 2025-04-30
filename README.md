@@ -51,8 +51,8 @@ const size = database.size() as number;
 /* Sets or updates data with key 'foo' with value 'bar' */
 database.set('foo', 'bar');
 
-/* Delete element with key 'foo'  */
-database.delete('foo');
+/* Delete element with key 'foo' */
+database.delete('foo'); // return boolean
 /* Clear all elements in the database */
 database.clear();
 ```

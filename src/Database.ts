@@ -52,7 +52,7 @@ class Database<T extends ValueType> {
     @access size() { return this.#MEMORY.size; }
 
     @access set(key: string, value: T) { this.#MEMORY.set(key, value); }
-    @access delete(key: string) { this.#MEMORY.delete(key); }
+    @access delete(key: string) { return this.#MEMORY.delete(key); }
 
     @access clear() { this.#MEMORY.clear(); }
 }
